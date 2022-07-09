@@ -30,6 +30,7 @@ object Configuration {
   }
 
   def apply(path: String): Map[String, String] = {
+
     this.fromFile(path)
   }
 }
@@ -92,7 +93,7 @@ abstract class AbstractDatabaseConnection[A](configuration: AbstractDatabaseConf
 
   }
 
-  def execute(query: String): Future[ResultSet] = connection.map(x => x.createStatement().executeQuery(query) )
+  def execute(query: String): Future[ResultSet] = connection.map(x => { val statement = x.prepareStatement(query);statement.setFetchSize(100);statement.executeQuery() } )
 
 
 

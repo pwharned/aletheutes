@@ -19,7 +19,8 @@ class Column[+T<:Any](name: String)(implicit retriever: Queryable[T]) extends Ag
   implicit val columnName: String = name
   def as[A>:T](aliasedName: String =name)(implicit column: Column[A] = this) = super.alias(aliasedName).apply(this)
   def count[A>:T](aliasedName: String =name)(implicit column: Column[A] = this) = super.countAs(aliasedName).apply(this)
-  def aggregate[A>:T](aliasedName: String =name, aggregation: String)(implicit column: Column[A] = this) = super.agg(aliasedName,aggregation ).apply(this)
+  def aggregate[A>:T](aliasedName: String =name, aggregation: String, args:String="")(implicit column: Column[A] = this) = super.agg(aliasedName,aggregation, args = args ).apply(this)
+
   def aggregateOver[A>:T](aliasedName: String, aggregation: String, overColumns: Column[A]*)(implicit column: Column[A] = this) = super.aggOver(aliasedName,aggregation, overColumns:_* ).apply(this)
 
   def unpack: Column[T] = Column(columnName)
@@ -40,10 +41,10 @@ class Column[+T<:Any](name: String)(implicit retriever: Queryable[T]) extends Ag
     val leftExpression: String = f"case when   ${this.expression} $operator $condition then $value else ${expression.expression} end as ${this.alias}"
     val leftAlias = this.alias
 
-      new Column[T](name = this.columnName){
-        override def toString: String = leftExpression
-        override def alias: String = leftAlias
-      }
+    new Column[T](name = this.columnName){
+      override def toString: String = leftExpression
+      override def alias: String = leftAlias
+    }
 
   }
 
@@ -99,13 +100,20 @@ object Column {
     override def alias: String = columnAlias
     override def expression: String = f"$aggregation($name)"
   }
+
+  def apply[T](name: String, columnAlias: String, aggregation: String, args: String )(implicit retriever: Queryable[T]): Column[T] = new Column[T](name=name){
+    override def toString: String = f"$aggregation($args, $name) as $columnAlias"
+    override def alias: String = columnAlias
+    override def expression: String = f"$aggregation($args, $name)"
+  }
+
   def apply[T](name: String, columnAlias: String, aggregation: String, over: Column[T]*)(implicit retriever: Queryable[T]): Column[T]= {
     val newExpression = f"$aggregation($name) OVER( PARTITION BY ${over.map(x => x.expression).mkString(",")} )"
     new Column[T](name=name){
-    override def toString: String = f"$expression as $columnAlias"
-    override def alias: String = columnAlias
-    override def expression: String = newExpression
-  }
+      override def toString: String = f"$expression as $columnAlias"
+      override def alias: String = columnAlias
+      override def expression: String = newExpression
+    }
 
   }
   def apply[T](column: Column[T], datatype: String )(implicit retriever: Queryable[T]): Column[T] = new Column[T](name=column.columnName){

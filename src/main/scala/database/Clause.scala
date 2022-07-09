@@ -7,8 +7,8 @@ class Condition(column: Column[_], operator: String, value: String){
 }
 
 object Condition {
-   def apply(column: Column[_], operator: String, value: String): Condition = new Condition(column, operator, value)
-  def apply[T](column: Column[_], operator: String, value: Table[T]): Condition = new Condition(column, operator, "(" +  value.*.toString + ")")
+  def apply(column: Column[_], operator: String, value: String): Condition = new Condition(column, operator, value)
+  def apply[T, A](column: Column[_], operator: String, value: Table[T, A]): Condition = new Condition(column, operator, "(" +  value.*.toString + ")")
 
 }
 
@@ -19,7 +19,7 @@ trait GroupBy extends Clause{
     implicit transformer: String  => {
 
       s" GROUP BY $columns"
-  }}
+    }}
 }
 
 trait Filter extends Clause{

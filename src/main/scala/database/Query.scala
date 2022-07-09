@@ -47,7 +47,7 @@ class Query[+T<:Column[Any]] (values: List[T] )(implicit tableName: String) exte
     }
   }
 
-  def filter[A<: Any, B: TypeTag](filterColumn: Column[A], operator: String, table: Table[B] ): Query[T] = {
+  def filter[A<: Any, B: TypeTag](filterColumn: Column[A], operator: String, table: Table[B, A] ): Query[T] = {
     val condition =  Condition(filterColumn, operator, table)
     val query: String = this.toString
     new Query(values)
@@ -82,7 +82,7 @@ class EmptyQuery[T<:Column[Nothing]] (implicit tableName: String) extends Query[
 
   override def filter[A<: Any](filterColumn: Column[A], operator: String, value: String ): Query[Nothing] = new EmptyQuery()
 
-  override def filter[A<: Any, B: TypeTag](filterColumn: Column[A], operator: String, table: Table[B] ): Query[Nothing] = new EmptyQuery()
+  override def filter[A<: Any, B: TypeTag](filterColumn: Column[A], operator: String, table: Table[B, A] ): Query[Nothing] = new EmptyQuery()
 }
 
 

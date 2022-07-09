@@ -17,7 +17,7 @@ object DataDriftEvaluator {
 
 
 
-  class Drift[T: TypeTag](table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", measure: String,over: String = "hours",  implicit val connection: AbstractDatabaseConnection[_]) {
+  class Drift[T: TypeTag, A](table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", measure: String,over: String = "hours",  implicit val connection: AbstractDatabaseConnection[A]) {
 
     def hourly = new RatiosTable{
       override def * = super.*.groupBy(timestamp.aggregate("hours", "hour"))
@@ -30,7 +30,7 @@ object DataDriftEvaluator {
       override def * = super.*.groupBy(timestamp.aggregate("days", "day"))
     }
 
-    class RatiosTable extends Table[T](name = table_name) {
+    class RatiosTable extends Table[T, A](name = table_name) {
 
       def timestamp = new Column[String](scoring_timestamp)
 

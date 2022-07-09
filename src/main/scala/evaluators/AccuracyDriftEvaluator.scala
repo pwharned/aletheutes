@@ -16,13 +16,13 @@ case class AccuracyDriftResult( args: Map[String, Any])
 object AccuracyDriftEvaluator {
 
 
-  class Drift[T: TypeTag](table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", learn_rate: String,max_iter: String = "10000", target: String, implicit val connection: AbstractDatabaseConnection[_]) {
-    val table = new GenericTable[T](name = table_name, values = features.map(x => new Column[Double](x)).toList )
+  class Drift[T: TypeTag, A](table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", learn_rate: String,max_iter: String = "10000", target: String, implicit val connection: AbstractDatabaseConnection[A]) {
+    val table = new GenericTable[T, A](name = table_name, values = features.map(x => new Column[Double](x)).toList )
 
     val model = table.asModel(learn_rate = learn_rate, max_iter = max_iter, target = target)
 
 
-    val transactions = new GenericTable[T](name = table_name, values = features.map(x => new Column[Double](x)).toList:+ new Column[String](scoring_timestamp) ){
+    val transactions = new GenericTable[T, A](name = table_name, values = features.map(x => new Column[Double](x)).toList:+ new Column[String](scoring_timestamp) ){
 
       def timestamp: Column[String] = new Column[String](scoring_timestamp)
 
@@ -46,7 +46,7 @@ object AccuracyDriftEvaluator {
 
     }
 
-    class GroupedTable extends Table[T](name= "t1") {
+    class GroupedTable extends Table[T, A](name= "t1") {
       def timestamp: Column[String] = new Column[String](scoring_timestamp)
       def hour: Column[String] = timestamp.aggregate("hours", "hour")
       def day: Column[String] = timestamp.aggregate("days", "day")
@@ -75,7 +75,7 @@ object AccuracyDriftEvaluator {
   }
 
 
-def apply(table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", learn_rate: String,max_iter: String = "10000", target: String, over:String = "hourly", connection: AbstractDatabaseConnection[_]) =     new Drift[DriftResult](table_name, features, scoring_timestamp, learn_rate, max_iter, target, connection)
+def apply[A](table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", learn_rate: String,max_iter: String = "10000", target: String, over:String = "hourly", connection: AbstractDatabaseConnection[A]) =     new Drift[DriftResult, A](table_name, features, scoring_timestamp, learn_rate, max_iter, target, connection)
 
 
   def main(table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", learn_rate: String,max_iter: String = "10000", target: String, over:String = "hourly", connection: AbstractDatabaseConnection[_]): Future[ListBuffer[DriftResult]] =  {

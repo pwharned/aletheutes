@@ -72,6 +72,17 @@ Where $$k$$ is the probability of membership in a protected class, and $$y$$ is 
 Aletheutes will calculate the respective impact ratios for any combination of outcomes and group membership in the data, given a prediction column and a column encoding the protected attribute ( such as race or sex). Therefore, Aletheutes does not need to be configured to know which outcomes are considered favorable and which groups are considered protected.
 
 
+```{r fairness, time_it=TRUE}
+
+url = "http://localhost:8080/api/disparate_impact_stream"
+body = '{"prediction":"risk", "table":"test_data2", "protected_column":"sex", "scoring_timestamp":"timestamp"}'
+res = POST(url = url, content_type_json(), body = body)
+data = content(res)
+
+df = tibble(prediction = lapply(data, `[[`, 1), sex = lapply(data, `[[`, 2 ),group = lapply(data, `[[`, 3 ),disparate_impact = lapply(data, `[[`, 4 ),time = lapply(data, `[[`, 5 ))
+df = as_tibble(lapply(df, unlist))%>% mutate(time = as.POSIXct(time))
+df %>% ggplot(aes(x = time, group = interaction(sex, prediction), colour = interaction(sex,prediction), y = disparate_impact)) + geom_line() + xlab("Time") + ggtitle("FIG 1: Difference in Outcomes for Males versus Females")
+```
 
 ```{r fairness, time_it=TRUE}
 

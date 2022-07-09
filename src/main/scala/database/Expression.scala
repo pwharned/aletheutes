@@ -6,10 +6,18 @@ trait Expression[+T] extends Queryable[T] {
 
 trait Aggregation[+T] extends Expression[T] {
 
-  def agg[T](aliasedName: String, aggregation: String )(implicit column: Column[T]):Column[T] => Column[T] = {
+
+
+  def agg[T](aliasedName: String, aggregation: String, args: String = "" )(implicit column: Column[T]):Column[T] => Column[T] = {
     val columnName = column.expression
-    implicit column : Column[T] =>
-      Column( columnName, aliasedName, aggregation = aggregation )
+    if (args==""){
+      implicit column : Column[T] =>
+        Column( columnName, aliasedName, aggregation = aggregation)
+    }else {
+      implicit column : Column[T] =>
+        Column( columnName, aliasedName, aggregation = aggregation, args: String )
+    }
+
   }
   def aggOver[T](aliasedName: String, aggregation: String, columns: Column[T]* )(implicit column: Column[T]):Column[T] => Column[T] = {
     val columnName = column.expression

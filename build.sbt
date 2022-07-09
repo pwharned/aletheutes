@@ -13,3 +13,5 @@ libraryDependencies += "com.typesafe.akka"% "akka-actor-typed_2.13" % "2.6.14"
 libraryDependencies += "com.typesafe.akka"% "akka-stream-typed_2.13" % "2.6.14"
 libraryDependencies += "com.typesafe.akka"% "akka-http_2.13" % "10.2.4"
 libraryDependencies += "com.typesafe.akka" %% "akka-http-spray-json" % "10.2.4"
+
+libraryDependencies += "com.typesafe.akka" %% "akka-stream" % "2.5.12"

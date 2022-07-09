@@ -52,9 +52,3 @@ object Driver {
 }
 
 
-object dbtest extends App{
-
-  val driver = Driver("db2")
-
-  print(driver.toString)
-}

@@ -27,7 +27,7 @@ object ImpactEvaluatorTest extends App {
 
     val resultTable = new ImpactEvaluator.Impact[Result]("risk", "test_data2", "sex", scoring_timestamp = "timestamp",connection = connection)
 
-  println(resultTable.result)
+  println(Await.result(resultTable.result.streamToFlatMap, 10.seconds))
 
 
 

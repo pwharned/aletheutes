@@ -16,11 +16,11 @@ object ExplainabilityEvaluator {
 
 
 
-  class Explanation[T: TypeTag](table_name: String, target: String, features: Seq[String],id_column: String,  scoring_timestamp: String = "scoring_timestamp",  learn_rate: String, max_iter: String, ids: Seq[Int],implicit val connection: AbstractDatabaseConnection[_]) {
+  class Explanation[T: TypeTag, A](table_name: String, target: String, features: Seq[String],id_column: String,  scoring_timestamp: String = "scoring_timestamp",  learn_rate: String, max_iter: String, ids: Seq[Int],implicit val connection: AbstractDatabaseConnection[A]) {
 
-    val table = new GenericTable[T](name = table_name, values = features.map(x => new Column[Double](x)).toList )
+    val table = new GenericTable[T, A](name = table_name, values = features.map(x => new Column[Double](x)).toList )
 
-    val transactions = new GenericTable[T](name = table_name, values = features.map(x => new Column[Double](x)).toList:+new Column[Double](id_column) ){
+    val transactions = new GenericTable[T, A](name = table_name, values = features.map(x => new Column[Double](x)).toList:+new Column[Double](id_column) ){
       def scoring_id: Column[Double] = new Column[Double](id_column)
       override def * : Query[Column[Any]] = super.*.filter(scoring_id,"in", f"(${ids.mkString(",")})"  )
     }
@@ -37,10 +37,10 @@ object ExplainabilityEvaluator {
 
   }
 
-  def main(table_name: String, target: String, features: Seq[String],id_column: String, scoring_timestamp: String = "scoring_timestamp", learn_rate: String, max_iter: String, ids: Seq[Int], connection: AbstractDatabaseConnection[_]): Future[ListBuffer[ExplanationResult]] =  {
+  def main[A](table_name: String, target: String, features: Seq[String],id_column: String, scoring_timestamp: String = "scoring_timestamp", learn_rate: String, max_iter: String, ids: Seq[Int], connection: AbstractDatabaseConnection[A]): Future[ListBuffer[ExplanationResult]] =  {
 
 
-    new Explanation[ExplanationResult](table_name, target, features, id_column, scoring_timestamp=scoring_timestamp, learn_rate, max_iter,ids = ids, connection=connection).retrieve
+    new Explanation[ExplanationResult,A](table_name, target, features, id_column, scoring_timestamp=scoring_timestamp, learn_rate, max_iter,ids = ids, connection=connection).retrieve
 
   }
 
