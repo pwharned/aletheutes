@@ -1,6 +1,5 @@
 import java.sql.ResultSet
-
-import database.{ConcreteDatabaseConfiguration, DatabaseConnection, GenericTable, Mapable}
+import database.{ConcreteDatabaseConfiguration, DB2, DatabaseConnection, GenericTable, Mapable}
 import evaluators.ImpactEvaluator
 
 import scala.collection.mutable.ListBuffer
@@ -21,13 +20,13 @@ object ImpactEvaluatorTest extends App {
 
     implicit val connection = DatabaseConnection(configuraiton)
 
+
   //case class Result(prediction: String, sex: String, group:String, disparate_impact: String, minutes: String, hours: String, days: String)
   case class Result(prediction: String, sex: String, group:Float,disparate_impact: Double, time:String)
 
 
-    val resultTable = new ImpactEvaluator.Impact[Result]("risk", "test_data2", "sex", scoring_timestamp = "timestamp",connection = connection)
+    val resultTable = new ImpactEvaluator.Impact[Result, DB2]("risk", "test_data2", "sex", scoring_timestamp = "timestamp")
 
-  println(Await.result(resultTable.result.streamToFlatMap, 10.seconds))
 
 
 

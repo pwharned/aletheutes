@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  analytics-db2:
+    image: ibmcom/db2:11.5.5.0
+    restart: always
+    privileged: true
+    environment:
+      LICENSE: accept
+      DB2INST1_PASSWORD: password
+      DBNAME: BLUDB
+      DB2INSTANCE: db2inst1
+    ports:
+    - target: 50000
+      published: 50000
+      protocol: tcp
+    volumes:
+      - my-db:/database
+      - /Users/pat/Projects/personalProjects/aletheutes/scripts:/var/custom
+
+  analytics-db2-reconciler:
+    build: .
+    ports:
+      - target: 80
+        published: 8080
+        protocol: tcp
+        mode: host
+    depends_on:
+      - analytics-db2
+# Name Volumes
+volumes:
+    my-db: {}

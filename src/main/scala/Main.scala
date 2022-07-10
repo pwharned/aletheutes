@@ -6,7 +6,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.server.Directives._
 import database.{ConcreteDatabaseConfiguration, DB2, DatabaseConnection}
-import evaluators.{AccuracyDriftEvaluator, DataDriftEvaluator, ExplainabilityEvaluator, ExplanationResult, ImpactEvaluator}
+import evaluators.{AccuracyDriftEvaluator, DataDriftEvaluator, ExplainabilityEvaluator, ExplanationResult, ImpactEvaluator, Search}
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Directives
 import spray.json.{DefaultJsonProtocol, RootJsonFormat}
@@ -51,12 +51,32 @@ object Main extends App {
   case class ExplainabilityRequest(table_name: String, target: String, features: Seq[String], id_column: String, max_iter: String, learn_rate: String, ids: Seq[Int])
 
   case class DriftRequest(table_name: String, features: Seq[String], scoring_timestamp: String, measure: String , over: String)
+
   case class AccuracyDriftRequest(table_name: String, features: Seq[String], scoring_timestamp: String, learn_rate: String , max_iter: String, target:String,over: String)
 
 
   class Application extends Directives with JsonSupport {
 
     implicit val actorSystem = ActorSystem(Behaviors.empty, "akka-http")
+
+
+    val search = path("search" ) {
+      get {
+        onComplete( Search.result.map(x => Source(x))) {
+          case Success(result) => complete(result)
+          case Failure(ex) => println(ex); complete(HttpEntity(ContentTypes.`application/json`, ex.toString))
+        }
+      }
+    }
+
+
+    val ping = path("/" ) {
+      get {
+        complete(HttpEntity(ContentTypes.`application/json`, "OK"))
+
+      }
+    }
+
 
 
     val disparateImpact = post {

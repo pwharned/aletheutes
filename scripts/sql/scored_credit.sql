@@ -1,0 +1,2 @@
+connect to bludb;
+import from "/var/custom/data/scored_noIndex.csv" OF DEL insert into scored_credit (checkingstatus, loanduration, credithistory,loanpurpose, loanamount, existingsavings, employmentduration, installmentpercent, sex, othersonloan, currentresidenceduration,ownsproperty, age, installmentplans, housing,existingcreditscount, job, dependents,telephone, foreignworker, prediction, scoring_timestamp);

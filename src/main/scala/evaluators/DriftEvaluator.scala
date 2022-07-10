@@ -59,9 +59,9 @@ object DataDriftEvaluator {
 
 
 
-  def main(table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", measure: String, over: String,  connection: AbstractDatabaseConnection[_]): Future[ListBuffer[DriftResult]] =  {
+  def main[A](table_name: String, features: Seq[String], scoring_timestamp: String = "scoring_timestamp", measure: String, over: String,  connection: AbstractDatabaseConnection[A]): Future[ListBuffer[DriftResult]] =  {
 
-    new Drift[DriftResult](table_name = table_name, features=features, scoring_timestamp=scoring_timestamp, measure=measure, connection=connection).retrieve(over)
+    new Drift[DriftResult, A](table_name = table_name, features=features, scoring_timestamp=scoring_timestamp, measure=measure, connection=connection).retrieve(over)
 
 
   }

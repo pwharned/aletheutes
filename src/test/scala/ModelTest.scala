@@ -1,4 +1,5 @@
-import database.{Column, ConcreteDatabaseConfiguration, DatabaseConnection, GenericTable, Model, Query}
+import ImpactEvaluatorTest.configuraiton
+import database.{Column, ConcreteDatabaseConfiguration, DB2, DatabaseConnection, GenericTable, Model, Query}
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt
@@ -21,13 +22,13 @@ object ModelTest extends App {
 
   val columnSeq: List[Column[_]] = List(columnA, columnB, columnc)
     case class Result( b2: Double*)
+  implicit val connection = DatabaseConnection(configuraiton)
 
-  val table = new GenericTable[Result](name = "scored_credit", values = columnSeq)
+  val table = new GenericTable[Result, DB2](name = "scored_credit", values = columnSeq)
 
   val model = table.*.queryToModel(learn_rate = ".012", max_iter = "2000", target = "prediction")
 
   val modelTable = table.asModel("prediction", ".001", "10000")
-  implicit val connection = DatabaseConnection(configuraiton)
 
   println(modelTable)
   println(model.equation)

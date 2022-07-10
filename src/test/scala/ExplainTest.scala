@@ -1,4 +1,4 @@
-import database.{ConcreteDatabaseConfiguration, DatabaseConnection}
+import database.{ConcreteDatabaseConfiguration, DB2, DatabaseConnection}
 import evaluators.{ExplainabilityEvaluator, ExplanationResult}
 
 import scala.collection.mutable.ListBuffer
@@ -24,14 +24,8 @@ object ExplainTest extends App{
 
 
    */
-val model = new ExplainabilityEvaluator.Explanation[ExplanationResult]( "scored_credit", "prediction", features = Seq("loanduration"), id_column="scoring_id", max_iter = "10000", learn_rate = ".001",connection = connection, ids = Seq(15005))
+val model = new ExplainabilityEvaluator.Explanation[ExplanationResult, DB2]( "scored_credit", "prediction", features = Seq("loanduration"), id_column="scoring_id", max_iter = "10000", learn_rate = ".001",connection = connection, ids = Seq(15005))
 
-
-  val res: Seq[Product] = Await.result(model.retrieve, 5.seconds).toSeq
-
-
-
-  println(json.Json(res))
 
 
 }
